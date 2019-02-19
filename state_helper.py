@@ -12,7 +12,7 @@ import kill_helper
 
 mouse = Controller()
 keyboard = keyController()
-
+frame_count = 0
 
 class GameState(Enum):
     MAIN_MENU = 1
@@ -20,73 +20,64 @@ class GameState(Enum):
     STORE = 3
 
 
-state = GameState.MAIN_MENU
-frame_count = 0
-money = 0
+class StateHelper():
+    def __init__(self):
+        self.state = GameState.MAIN_MENU
+        self.money = 0
 
+    def check_state(self):
+        if self.state != GameState.MAIN_MENU:
+            tmp = pixel_helper.get_pixel_greyscale(
+                settings.start_menu[0], settings.start_menu[1])
+            if tmp > 220:
+                self.state = GameState.STORE
+            else:
+                self.state = GameState.GAME
 
-def check_state():
-    global state
-
-    if state != GameState.MAIN_MENU:
-        tmp = pixel_helper.get_pixel_greyscale(
-            settings.start_menu[0], settings.start_menu[1])
-        if tmp > 220:
-            state = GameState.STORE
-        else:
-            state = GameState.GAME
-
-
-def handle_menu():
-    global state
-
-    time.sleep(1)
-    mouse.position = settings.start_pos
-    mouse.click(Button.left, 1)
-    time.sleep(1)
-    state = GameState.GAME
-
-
-def handle_game():
-    global frame_count
-
-    frame_count += 1
-    bbox = settings.top_left + settings.bot_right
-    screen = np.array(ImageGrab.grab(bbox=bbox))
-    screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
-    kill_helper.find_and_kill(screen)
-    kill_helper.reload()
-    check_state()
-
-
-def handle_store():
-    global state
-    global money
-
-    money = int(pixel_helper.get_text_from_screen([850, 420], [970, 435])[1:])
-    mouse.position = settings.clip_buy_pos
-
-    for i in range(int(money / 1000)):
-        if (i % 2):
-            mouse.position = [settings.clip_buy_pos[0] +
-                              1, settings.clip_buy_pos[1] + 1]
-        else:
-            mouse.position = settings.clip_buy_pos
+    def handle_menu(self):
+        time.sleep(1)
+        mouse.position = settings.start_pos
         mouse.click(Button.left, 1)
-        time.sleep(0.5)
+        time.sleep(1)
+        self.state = GameState.GAME
 
-    mouse.position = settings.done_pos
-    mouse.click(Button.left, 1)
-    state = GameState.GAME
-    time.sleep(2)
+    def handle_game(self):
+        global frame_count
+        frame_count += 1
+        bbox = settings.top_left + settings.bot_right
+        screen = np.array(ImageGrab.grab(bbox=bbox))
+        screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
+        kill_helper.find_and_kill(screen)
+        kill_helper.reload()
+        self.check_state()
 
+    def handle_store(self):
+        money = int(pixel_helper.get_text_from_screen(
+            [850, 420],
+            [970, 435])[1:])
+        mouse.position = settings.clip_buy_pos
 
-def handle_tates():
-    if state == GameState.MAIN_MENU:
-        handle_menu()
-    elif state == GameState.GAME:
-        handle_game()
-    elif state == GameState.STORE:
-        handle_store()
-    else:
-        print("Gamestate not know: ", state)
+        for i in range(int(money / 1000)):
+            if i % 2:
+                mouse.position = [
+                    settings.clip_buy_pos[0] + 1,
+                    settings.clip_buy_pos[1] + 1]
+            else:
+                mouse.position = settings.clip_buy_pos
+            mouse.click(Button.left, 1)
+            time.sleep(0.5)
+
+        mouse.position = settings.done_pos
+        mouse.click(Button.left, 1)
+        self.state = GameState.GAME
+        time.sleep(2)
+
+    def handle_states(self):
+        if self.state == GameState.MAIN_MENU:
+            self.handle_menu()
+        elif self.state == GameState.GAME:
+            self.handle_game()
+        elif self.state == GameState.STORE:
+            self.handle_store()
+        else:
+            print("Gamestate not know: ", self.state)

@@ -14,10 +14,10 @@ def get_text_from_screen(_top_left, _bot_right):
     _image = get_image(_top_left, _bot_right)
     _image = cv2.resize(_image, (0, 0), fx=2, fy=2)
     text = pytesseract.image_to_string(_image)
-    if (text == ""):
+    if text == "":
         return "$0"
     else:
-        return text 
+        return text
 
 def show_text_from_screen(_top_left, _bot_right):
     _image = get_image(_top_left, _bot_right)
@@ -26,7 +26,7 @@ def show_text_from_screen(_top_left, _bot_right):
     cv2.imshow("test", _image)
     print("text:", pytesseract.image_to_string(_image))
     cv2.waitKey(0)
-    
+  
 #absolute positions
 def get_pixel_greyscale(x, y):
     gray_square = np.array(ImageGrab.grab([x - 1, y - 1, x + 1, y + 1]))

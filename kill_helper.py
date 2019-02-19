@@ -1,7 +1,7 @@
-from pynput.mouse import Button
-from pynput.keyboard import Key
 import time
 import math
+from pynput.mouse import Button
+from pynput.keyboard import Key
 
 import pixel_helper
 import state_helper
@@ -24,6 +24,7 @@ def can_kill(target_pos):
 
 def find_and_kill(screen):
     global last_kill_pos
+    global STATE_MANAGER
 
     for y in range(len(screen)):
         for x in range(len(screen[y])):
