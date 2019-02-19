@@ -1,8 +1,8 @@
 from enum import Enum
 import time
 from PIL import ImageGrab
-from pynput.mouse import Button, Controller, Listener
-from pynput.keyboard import Key, Controller as keyController
+from pynput.mouse import Button, Controller
+from pynput.keyboard import Controller as keyController
 import numpy as np
 import cv2
 
@@ -14,6 +14,7 @@ mouse = Controller()
 keyboard = keyController()
 frame_count = 0
 
+
 class GameState(Enum):
     MAIN_MENU = 1
     GAME = 2
@@ -24,11 +25,13 @@ class StateHelper():
     def __init__(self):
         self.state = GameState.MAIN_MENU
         self.money = 0
+        self.kill_manager = kill_helper.KillHelper()
 
     def check_state(self):
         if self.state != GameState.MAIN_MENU:
             tmp = pixel_helper.get_pixel_greyscale(
-                settings.start_menu[0], settings.start_menu[1])
+                settings.start_menu[0],
+                settings.start_menu[1])
             if tmp > 220:
                 self.state = GameState.STORE
             else:
@@ -43,12 +46,13 @@ class StateHelper():
 
     def handle_game(self):
         global frame_count
+
         frame_count += 1
         bbox = settings.top_left + settings.bot_right
         screen = np.array(ImageGrab.grab(bbox=bbox))
         screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
-        kill_helper.find_and_kill(screen)
-        kill_helper.reload()
+        self.kill_manager.find_and_kill(screen)
+        self.kill_manager.reload()
         self.check_state()
 
     def handle_store(self):
