@@ -1,6 +1,4 @@
-import state_helper
-
-STATE_MANAGER = state_helper.StateHelper()
+from state_helper import static_state_helper as sh
 
 while True:
-    STATE_MANAGER.handle_states()
+    sh.handle_states()

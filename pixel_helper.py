@@ -5,13 +5,18 @@ import pytesseract
 
 pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files (x86)\\Tesseract-OCR\\tesseract.exe"
 
-def get_image(_top_left, _bot_right):
+def get_rgb_image(_top_left, _bot_right):
     _image = np.array(ImageGrab.grab(bbox=_top_left + _bot_right))
     _image = cv2.cvtColor(_image, cv2.COLOR_BGR2RGB)
     return _image
 
+def get_gray_image(_top_left, _bot_right):
+    _image = np.array(ImageGrab.grab(bbox=_top_left + _bot_right))
+    _image = cv2.cvtColor(_image, cv2.COLOR_BGR2GRAY)
+    return _image
+
 def get_text_from_screen(_top_left, _bot_right):
-    _image = get_image(_top_left, _bot_right)
+    _image = get_rgb_image(_top_left, _bot_right)
     _image = cv2.resize(_image, (0, 0), fx=2, fy=2)
     text = pytesseract.image_to_string(_image)
     if text == "":
@@ -19,7 +24,7 @@ def get_text_from_screen(_top_left, _bot_right):
     return text
 
 def show_text_from_screen(_top_left, _bot_right):
-    _image = get_image(_top_left, _bot_right)
+    _image = get_rgb_image(_top_left, _bot_right)
     _image = cv2.resize(_image, (0, 0), fx=2, fy=2)
     #_image = cv2.threshold(_image, 127, 255, cv2.THRESH_BINARY)
     cv2.imshow("test", _image)
